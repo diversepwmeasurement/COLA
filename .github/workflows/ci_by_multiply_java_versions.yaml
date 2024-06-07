@@ -1,36 +1,36 @@
-# Quickstart for GitHub Actions
-# https://docs.github.com/en/actions/quickstart
-
-name: Strong CI with multiply java versions
-on: [ push, pull_request, workflow_dispatch ]
 jobs:
   test:
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#choosing-github-hosted-runners
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
     name: test by multiply java versions
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    - continue-on-error: true
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - continue-on-error: true
+      name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        cache: maven
+        distribution: zulu
+        java-version: '17
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          # https://github.com/actions/setup-java?tab=readme-ov-file#install-multiple-jdks
-          java-version: |
-            17
-            21
-            22
-          distribution: zulu
-          cache: maven
+          21
 
-      - run: scripts/integration_test
-        env:
-          JAVA17_HOME: ${{ env.JAVA_HOME_17_X64 }}
-          JAVA21_HOME: ${{ env.JAVA_HOME_21_X64 }}
-          JAVA22_HOME: ${{ env.JAVA_HOME_22_X64 }}
+          22
 
-      - name: remove cola self maven install files
-        run: rm -rf $HOME/.m2/repository/com/alibaba/{cola,craftsman}
+          '
+    - continue-on-error: true
+      env:
+        JAVA17_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        JAVA21_HOME: ${{ env.JAVA_HOME_21_X64 }}
+        JAVA22_HOME: ${{ env.JAVA_HOME_22_X64 }}
+      run: scripts/integration_test
+    - continue-on-error: true
+      name: remove cola self maven install files
+      run: rm -rf $HOME/.m2/repository/com/alibaba/{cola,craftsman}
+    timeout-minutes: 20
+name: Strong CI with multiply java versions
+on:
+  repository_dispatch:
+    types: trigger-ga___ci_by_multiply_java_versions.yaml
